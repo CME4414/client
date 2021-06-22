@@ -5,6 +5,7 @@ import {
 import { ToastProvider } from 'react-toast-notifications';
 import './App.css';
 import ChallengeList from './pages/ChallengeList';
+import Challenge from './pages/Challenge';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -34,6 +35,9 @@ function App() {
           </PublicRoute>
           <PrivateRoute path="/challenges">
             <ChallengeList />
+          </PrivateRoute>
+          <PrivateRoute path="/challenge/:id">
+            <Challenge />
           </PrivateRoute>
           <PrivateRoute path="/me">
             <Profile />

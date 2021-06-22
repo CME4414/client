@@ -6,14 +6,18 @@ import {
 class ProfilIcon extends React.Component {
   render() {
     return (
-      <div className="w-16 h-16 absolute right-0 rounded-full float-right mr-10">
+      <div className="h-16 absolute right-0 rounded-full float-right mr-10">
         <Link to="/me">
-          <img
-            alt=""
-            className="rounded-full w-16 h-16"
-            src="https://randomuser.me/api/portraits/women/16.jpg"
-          />
+          {JSON.parse(window.localStorage.getItem('user')).name}
         </Link>
+        {window.localStorage.getItem('token') && (
+          <Link
+            className="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0"
+            to="/logout"
+          >
+            Log out
+          </Link>
+        )}
       </div>
     );
   }

@@ -1,348 +1,124 @@
-import React from 'react';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, { useEffect, useState } from 'react';
+import {
+  Link,
+} from 'react-router-dom';
+import api from '../api';
+import { apiData } from '../api/utils';
+import colors from '../helpers/colors';
 import Header from '../components/Header';
+import CreateChallenge from '../components/modals/CreateChallenge';
+import Invite from '../components/modals/Invite';
 
-class ChallengeList extends React.Component {
-  render() {
-    return (
+const ChallengeList = () => {
+  const [challenges, setChallenges] = useState([]);
+  const [createNewChallengeVisible, setCreateNewChallengeVisible] = useState(false);
+  const [inviteVisible, setInviteVisible] = useState(false);
+  const [challengeID, setChallengeID] = useState('');
+
+  const onCreateNewChallengeClick = () => {
+    setCreateNewChallengeVisible(true);
+  };
+
+  const fetchChallenges = async () => {
+    const response = await api.getChallenges();
+    const data = apiData(response);
+    return data;
+  };
+
+  const onInviteClick = e => {
+    setInviteVisible(true);
+    setChallengeID(e.currentTarget.getAttribute('data-challenge-id'));
+  };
+
+  useEffect(() => {
+    fetchChallenges().then(data => setChallenges(data));
+  }, [createNewChallengeVisible, inviteVisible]);
+
+  return (
+    <>
       <section className="text-gray-600 body-font">
         <Header />
         <div className="container px-5 mx-auto">
           <p className="w-30 h-20 inline-flex items-center justify-center text-gray-500 float-left"> Your Challenges</p>
-          <button
-            className="w-12 h-20 inline-flex items-center justify-center text-gray-500 float-right "
-            type="button"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
-            </svg>
-          </button>
-          <button
-            className="w-12 h-20 inline-flex items-center justify-center text-gray-500 float-right "
-            type="button"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
-            </svg>
-          </button>
-          <button
-            className="w-12 h-20 inline-flex items-center justify-center text-gray-500 float-right "
-            type="button"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-              />
-            </svg>
-          </button>
         </div>
 
         <div className="container px-5 py-24 mx-auto">
           <div className="flex flex-wrap -m-4">
-            <div className="xl:w-1/3 md:w-1/2 p-4">
-              <div className="border border-gray-200 p-6 rounded-lg">
-
-                <button
-                  className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500"
-                  type="button"
+            {challenges.map(relation => {
+              const { challenge, users } = relation;
+              return (
+                <div
+                  key={challenge.id}
+                  className="xl:w-1/3 md:w-1/2 p-4"
                 >
-                  <img
-                    alt="adsda"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/women/94.jpg"
-                  />
-                </button>
+                  <div className="border border-gray-200 p-6 rounded-lg">
+                    {users.map((user, index) => {
+                      return (
+                        <button
+                          key={user.id}
+                          className={`w-12 h-12 inline-flex items-center justify-center rounded-full bg-${colors[index % colors.length]}-100 text-${colors[index % colors.length]}-500`}
+                          type="button"
+                        >
+                          <div className="rounded-full h-24 w-24 flex items-center justify-center"><strong className="text-2xl">{user.user.name.substr(0, 1)}</strong></div>
+                        </button>
+                      );
+                    })}
 
-                <button
-                  className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-100 text-gray-500 float-right"
-                  type="button"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button>
+                    <button
+                      className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-100 text-gray-500 float-right"
+                      data-challenge-id={challenge.id}
+                      onClick={onInviteClick}
+                      type="button"
+                    >
+                      <svg
+                        className="h-6 w-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                    </button>
 
-                <h2 className="text-lg text-gray-900 font-medium title-font mb-2">Shooting Stars</h2>
-                <span className="text-left text-sm text-yellow-600"> #category</span>
-                <span className="text-left text-sm text-yellow-600"> #category</span>
-                <p className="leading-relaxed text-base">Fingerstache flexitarian street art 8-bit waist co, subway tile poke farm.</p>
-              </div>
-            </div>
-            <div className="xl:w-1/3 md:w-1/2 p-4">
-              <div className="border border-gray-200 p-6 rounded-lg">
-                <button
-                  className="w-12 h-12inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500"
-                  type="button"
-                >
-                  <img
-                    alt="dsada"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/men/48.jpg"
-                  />
-                </button>
-
-                <button
-                  className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500"
-                  type="button"
-                >
-                  <img
-                    alt="asddasd"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/men/77.jpg"
-                  />
-                </button>
-
-                <button
-                  className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500"
-                  type="button"
-                >
-                  <img
-                    alt="asdas"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/women/24.jpg"
-                  />
-                </button>
-
-                <button
-                  className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-100 text-gray-500 mb-4 float-right"
-                  type="button"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button>
-
-                <h2 className="text-lg text-gray-900 font-medium title-font mb-2">The Catalyzer</h2>
-                <span className="text-left text-sm text-yellow-600"> #category</span>
-                <span className="text-left text-sm text-yellow-600"> #category</span>
-                <p className="leading-relaxed text-base">Fingerstache flexitarian street art 8-bit waist co, subway tile poke farm.</p>
-              </div>
-            </div>
-            <div className="xl:w-1/3 md:w-1/2 p-4">
-              <div className="border border-gray-200 p-6 rounded-lg">
-                <div className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500 mb-4">
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                    <circle
-                      cx="12"
-                      cy="7"
-                      r="4"
-                    />
-                  </svg>
+                    <h2 className="text-lg text-gray-900 font-medium title-font mb-2"><Link to={{ pathname: `/challenge/${challenge.id}` }}>{challenge.title}</Link></h2>
+                    <p className="leading-relaxed text-base">{challenge.info}</p>
+                  </div>
                 </div>
+              );
+            })}
 
-                <button
-                  className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-100 text-gray-500 mb-4 float-right"
-                  type="button"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button>
-
-                <h2 className="text-lg text-gray-900 font-medium title-font mb-2">Neptune</h2>
-                <p className="leading-relaxed text-base">Fingerstache flexitarian street art 8-bit waist co, subway tile poke farm.</p>
-              </div>
-            </div>
-            <div className="xl:w-1/3 md:w-1/2 p-4">
-              <div className="border border-gray-200 p-6 rounded-lg">
-                <div className="w-12 h-12 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500 mb-4">
-                  <img
-                    alt="sada"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/men/33.jpg"
-                  />
-                </div>
-                <div className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500 mb-4 ">
-                  <img
-                    alt="asddas"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/women/66.jpg"
-                  />
-                </div>
-                <button
-                  className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-100 text-gray-500 mb-4 float-right"
-                  type="button"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button>
-
-                <h2 className="text-lg text-gray-900 font-medium title-font mb-2">Melanchole</h2>
-                <p className="leading-relaxed text-base">Fingerstache flexitarian street art 8-bit waist co, subway tile poke farm.</p>
-              </div>
-            </div>
-            <div className="xl:w-1/3 md:w-1/2 p-4">
-              <div className="border border-gray-200 p-6 rounded-lg">
-                <div className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500 mb-4">
-                  <img
-                    alt="sadas"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/women/98.jpg"
-                  />
-                </div>
-
-                <button
-                  className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-100 text-gray-500 mb-4 float-right"
-                  type="button"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button>
-
-                <h2 className="text-lg text-gray-900 font-medium title-font mb-2">Bunker</h2>
-                <span className="text-left text-sm text-yellow-600"> #category</span>
-                <span className="text-left text-sm text-yellow-600"> #category</span>
-                <p className="leading-relaxed text-base">Fingerstache flexitarian street art 8-bit waist co, subway tile poke farm.</p>
-              </div>
-            </div>
-            <div className="xl:w-1/3 md:w-1/2 p-4">
-              <div className="border border-gray-200 p-6 rounded-lg">
-                <div className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500 mb-4">
-                  <img
-                    alt="asd"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/men/46.jpg"
-                  />
-                </div>
-                <div className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-yellow-100 text-yellow-500 mb-4">
-                  <img
-                    alt="asd"
-                    className="rounded-full w-10 h-10"
-                    src="https://randomuser.me/api/portraits/men/56.jpg"
-                  />
-                </div>
-                <button
-                  className="w-10 h-10 inline-flex items-center justify-center rounded-full bg-gray-100 text-gray-500 mb-4 float-right"
-                  type="button"
-                >
-                  <svg
-                    className="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button>
-
-                <h2 className="text-lg text-gray-900 font-medium title-font mb-2">Ramona Falls</h2>
-                <p className="leading-relaxed text-base">Fingerstache flexitarian street art 8-bit waist co, subway tile poke farm.</p>
-              </div>
-            </div>
           </div>
           <button
             className="flex mx-auto mt-16 text-white bg-yellow-500 border-0 py-2 px-8 focus:outline-none hover:bg-yellow-600 rounded text-lg"
+            onClick={onCreateNewChallengeClick}
             type="button"
           >
             Create New Challenge
           </button>
         </div>
       </section>
-    );
-  }
-}
+      {createNewChallengeVisible && (
+        <CreateChallenge
+          closeModal={() => setCreateNewChallengeVisible(false)}
+        />
+      )}
+
+      {inviteVisible && (
+        <Invite
+          challengeID={challengeID}
+          closeModal={() => setInviteVisible(false)}
+        />
+      )}
+    </>
+  );
+};
 
 export default ChallengeList;
 
